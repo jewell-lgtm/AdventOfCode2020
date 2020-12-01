@@ -10,6 +10,7 @@ class Day1(private val target: Int, private val expenseReport: List<Int>) {
 
     private fun product(list: List<Int>): Sequence<Pair<Int, Int>> = sequence {
         list.forEachIndexed { i, first ->
+            // TODO: implement binary search here
             list.subList(i, list.size - 1).forEach { second ->
                 yield(first to second)
             }
