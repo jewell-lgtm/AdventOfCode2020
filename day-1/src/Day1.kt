@@ -1,42 +1,19 @@
 import java.io.File
-import java.lang.RuntimeException
 import kotlin.test.assertEquals
 
 
 class Day1(private val target: Int, private val expenseReport: List<Int>) {
-    private var cursorA: Int
-    private var cursorB: Int
-
-    init {
-        val length = expenseReport.size
-        this.cursorA = 0
-        this.cursorB = length - 1
-    }
-
-
-
 
     fun answer(): Pair<Int, Int> {
-        var answerA: Int
-        var answerB: Int
-
-        var i = 0
-        while (cursorA <  (expenseReport.size - 1)  ) {
-            while (cursorB > 0) {
-                i++
-                answerA = expenseReport[cursorA]
-                answerB = expenseReport[cursorB]
-                if (answerA + answerB == target) {
-                    return Pair(answerA, answerB)
-                }
-                cursorB--
+        for (first in expenseReport) {
+            val second = expenseReport.firstOrNull { it + first == target }
+            if (second != null) {
+                return Pair(first, second)
             }
-            cursorB = expenseReport.size - 1
-            cursorA++
         }
-
         return Pair(-1, -1)
     }
+
 }
 
 
