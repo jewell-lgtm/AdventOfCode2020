@@ -1,6 +1,4 @@
 import java.io.File
-import java.lang.RuntimeException
-import kotlin.test.assertNotNull
 
 class Day2 {
 
@@ -11,24 +9,31 @@ class Day2 {
     }
 }
 
-class PasswordRule(val atLeast: Int, val atMost: Int, val searchChar: String, val searchString: String) {
+class PasswordRule(val atLeast: Int, val atMost: Int, val searchString: String, val password: String) {
     companion object {
-        val inputRule = Regex("^(\\d)+-(\\d)+ (\\w): (\\w)+$")
+        private val inputRule = Regex("^(\\d+)-(\\d+) (\\w): (\\w+)$")
         fun fromString(string: String): PasswordRule {
             val matches = inputRule.find(string) ?: throw RuntimeException("matches was null $string")
             return PasswordRule(
                     atLeast = matches.groups[1]!!.value.toInt(),
                     atMost = matches.groups[2]!!.value.toInt(),
-                    searchChar = matches.groups[3]!!.value,
-                    searchString = matches.groups[4]!!.value
+                    searchString = matches.groups[3]!!.value,
+                    password = matches.groups[4]!!.value
             )
         }
     }
 
-    fun isValid(): Boolean {
-        val count = searchString.count { searchChar.contains(searchChar) }
-        return count in atLeast..atMost
-    }
+    val rule1Valid: Boolean
+        get() = password.chunked(1).count { it == searchString } in atLeast..atMost
+
+    val searchChar = searchString[0]
+    val atPos1 = password[atLeast - 1]
+    val atPos2 = password[atMost - 1]
+
+    val rule2Valid: Boolean
+        get() = listOf(atPos1 == searchChar, atPos2 == searchChar).count { it } == 1
+
+
 }
 
 
@@ -39,11 +44,13 @@ fun main(args: Array<String>) {
             "2-9 c: ccccccccc"
     )
     val rules = Day2.parseInput(testInput)
-    println(rules.count { it.isValid() })
+    println("According to test data ${rules.count { it.rule1Valid }} are valid")
 
     val txtReport = File("${System.getProperty("user.dir")}/day-2/src/input.txt")
-            .useLines { line -> line.toList().map { it.toString() } }
+            .useLines { it.toList() }
 
-    val rules2 = Day2.parseInput(txtReport)
-    println(rules2.count { it.isValid() })
+    val out = Day2.parseInput(txtReport)
+
+    println("According to rule 1: ${out.count { it.rule1Valid }} are valid")
+    println("According to rule 2: ${out.count { it.rule2Valid }} are valid")
 }
