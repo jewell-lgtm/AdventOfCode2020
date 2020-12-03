@@ -27,11 +27,7 @@ class Day3(val rows: List<Row>, var turn: Int, val vel: Vector) {
         SNOW, TREE
     }
 
-    data class Point(val x: Int, val y: Int) {
-        override fun toString(): String {
-            return "(x=$x, y=$y)"
-        }
-    }
+    data class Point(val x: Int, val y: Int)
 
     data class Vector(val x: Int, val y: Int)
 
@@ -41,7 +37,6 @@ class Day3(val rows: List<Row>, var turn: Int, val vel: Vector) {
 
     val complete: Boolean
         get() = turn >= rows.size
-
 
     val position: Point
         get() = Point(turn * vel.x, turn * vel.y)
@@ -70,7 +65,7 @@ fun main(args: Array<String>) {
         Day3.Vector(7, 1),
         Day3.Vector(1, 2)
     ).map { countTrees(Day3.create(txtReport, it)) }
-    val product = counts.reduce{ acc, i -> acc * i }
+    val product = counts.reduce { acc, i -> acc * i }
     println("We landed on these trees: $counts, giving a product of $product")
 
 }
