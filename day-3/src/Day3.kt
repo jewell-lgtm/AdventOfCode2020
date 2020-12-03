@@ -3,13 +3,6 @@ import java.io.File
 import kotlin.test.assertEquals
 
 class Day3(val rows: List<Row>, var turn: Int, val vel: Vector) {
-    val complete: Boolean
-        get() = turn >= rows.size
-
-
-    val position: Point
-        get() = Point(turn * vel.x, turn * vel.y)
-
     companion object {
         fun part1(strs: List<String>): Day3 {
             return Day3.create(strs, Vector(3, 1))
@@ -46,17 +39,22 @@ class Day3(val rows: List<Row>, var turn: Int, val vel: Vector) {
         turn += 1
     }
 
+    val complete: Boolean
+        get() = turn >= rows.size
+
+
+    val position: Point
+        get() = Point(turn * vel.x, turn * vel.y)
+
     val square: Square
         get() = currentRow.atX(position.x)
 
     val currentRow: Row
-        get() {
-            return if (position.y < rows.size) {
-                rows[position.y]
-            } else {
-                // if we've gone past the end of the board return snow
-                Row.SnowyRow()
-            }
+        get() = if (position.y < rows.size) {
+            rows[position.y]
+        } else {
+            // if we've gone past the end of the board return snow
+            Row.SnowyRow()
         }
 }
 
