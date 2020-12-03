@@ -2,22 +2,30 @@ import Day3.Row
 import java.io.File
 import kotlin.test.assertEquals
 
-class Day3(val rows: List<Row>, var turn: Int) {
+class Day3(val rows: List<Row>, var turn: Int, val vel: Vector) {
     var complete = false
 
     val position: Point
-        get() = Point(turn * 3, turn * 1)
+        get() = Point(turn * vel.x, turn * vel.y)
 
     companion object {
-        fun createFromStrs(strs: List<String>): Day3 {
+        fun part1(strs: List<String>): Day3 {
+            return Day3.create(strs, Vector(3, 1))
+        }
+
+        fun create(strs: List<String>, vel: Vector): Day3 {
             val rows = strs.mapIndexed { i, str -> Row(str, i) }
-            return Day3(rows, 0)
+            return Day3(rows, 0, vel)
         }
     }
 
 
-    class Row(val str: String, val y: Int) {
-        fun atX(x: Int): Square = if (str[x % str.length] == '.') Square.SNOW else Square.TREE
+    open class Row(val str: String, val y: Int) {
+        open fun atX(x: Int): Square = if (str[x % str.length] == '.') Square.SNOW else Square.TREE
+
+        class SnowyRow : Row("", -1) {
+            override fun atX(x: Int) = Square.SNOW
+        }
     }
 
     enum class Square {
@@ -30,6 +38,8 @@ class Day3(val rows: List<Row>, var turn: Int) {
         }
     }
 
+    data class Vector(val x: Int, val y: Int)
+
     fun move() {
         if (turn + 1 == rows.size) {
             complete = true
@@ -37,32 +47,52 @@ class Day3(val rows: List<Row>, var turn: Int) {
 
         turn += 1
     }
+
     val square: Square
-        get() = currentRow.atX(position.x )
+        get() = currentRow.atX(position.x)
 
     val currentRow: Row
-        get() = rows[position.y ]
+        get() {
+            if (position.y < rows.size) {
+                return rows[position.y]
+            } else {
+                // if we've gone past the end of the board return snow
+                return Row.SnowyRow()
+            }
+        }
 }
 
 fun main(args: Array<String>) {
-
     runTests()
 
     val txtReport = File("${System.getProperty("user.dir")}/day-3/src/input.txt")
         .useLines { it.toList() }
 
-    val part1 = Day3.createFromStrs(txtReport)
+    println("Part 1: Landed on ${countTrees(Day3.part1(txtReport))} trees")
 
-    var i = 0
+    val counts: List<Int> = listOf(
+        Day3.Vector(1, 1),
+        Day3.Vector(3, 1),
+        Day3.Vector(5, 1),
+        Day3.Vector(7, 1),
+        Day3.Vector(1, 2)
+    ).map { countTrees(Day3.create(txtReport, it)) }
+    val product = counts.reduce{ acc, i -> acc * i }
+    println("We landed on these trees: $counts, giving a product of $product")
+
+}
+
+private fun countTrees(game: Day3): Int {
+    var i = 0 // I'm afraid of infinity
     var trees = 0
-    while(!part1.complete && i++ < 10000) {
-        println("$part1.turn: I am at position ${part1.position} and I am on a ${part1.square} square")
-        if (part1.square == Day3.Square.TREE) {
+    while (!game.complete && i++ < 1000) {
+        if (game.square == Day3.Square.TREE) {
             trees++
         }
-        part1.move()
+        game.move()
     }
-    println("Landed on $trees trees")
+
+    return trees
 }
 
 
@@ -76,7 +106,7 @@ fun runTests() {
     assertEquals(Day3.Square.TREE, row.atX(4))
     assertEquals(Day3.Square.SNOW, row.atX(5))
 
-    val test = Day3.createFromStrs(listOf("....", "...#"))
+    val test = Day3.create(listOf("....", "...#"), Day3.Vector(3, 1))
     assertEquals(Day3.Point(0, 0), test.position)
     assertEquals(Day3.Square.SNOW, test.square);
     assertEquals(false, test.complete)
