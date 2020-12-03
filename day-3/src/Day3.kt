@@ -50,12 +50,9 @@ class Day3(val rows: List<Row>, var turn: Int, val vel: Vector) {
         get() = currentRow.atX(position.x)
 
     val currentRow: Row
-        get() = if (position.y < rows.size) {
-            rows[position.y]
-        } else {
-            // if we've gone past the end of the board return snow
-            Row.SnowyRow()
-        }
+        get() = rows.getOrElse(position.y) { Row.SnowyRow() }
+
+
 }
 
 fun main(args: Array<String>) {
