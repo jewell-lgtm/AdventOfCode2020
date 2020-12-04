@@ -6,34 +6,25 @@ import kotlin.test.assertTrue
 class Day04 {
     companion object {
         fun part1(str: String): List<Credentials> {
-            return str.split("\n\n").map { Credentials.part1(it) }
+            return str.split("\n\n").map { Credentials(parseStr(it), Ruleset.part1()) }
         }
         fun part2(str: String): List<Credentials> {
-            return str.split("\n\n").map { Credentials.part2(it) }
+            return str.split("\n\n").map { Credentials(parseStr(it), Ruleset.part2()) }
+        }
+
+        fun parseStr(str: String): List<Pair<String, String>> {
+            return str.replace("\n", " ")
+                .trim()
+                .split(" ")
+                .map { token ->
+                    token.split(":")
+                        .let { it[0] to it[1] }
+                }
         }
     }
 
 
     class Credentials(val creds: List<Pair<String, String>>, val ruleset: Ruleset) {
-        companion object {
-            fun part1(str: String): Credentials {
-                return Credentials(parseStr(str), Ruleset.part1())
-            }
-            fun part2(str: String): Credentials {
-                return Credentials(parseStr(str), Ruleset.part2())
-            }
-
-            private fun parseStr(str: String): List<Pair<String, String>> {
-                return str.replace("\n", " ")
-                    .trim()
-                    .split(" ")
-                    .map { token ->
-                        token.split(":")
-                            .let { it[0] to it[1] }
-                    }
-            }
-        }
-
         val valid: Boolean
             get() = ruleset.validate(creds)
     }
