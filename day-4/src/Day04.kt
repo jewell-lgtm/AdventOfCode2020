@@ -35,16 +35,21 @@ class Day04 {
             fun part1(): Ruleset {
                 val tokens: List<Rule> = listOf(
                     PresentRule("byr"),
+                    PresentRule("iyr"),
+                    PresentRule("eyr"),
                     PresentRule("hgt"),
                     PresentRule("hcl"),
                     PresentRule("ecl"),
-                    PresentRule("pid")
+                    PresentRule("pid")// ,
+//                    PresentRule("cid")
                 )
                 return Ruleset(tokens)
             }
             fun part2(): Ruleset {
                 val tokens: List<Rule> = listOf(
                     BirthYearRule(),
+                    IssueYearRule(),
+                    ExpirationYearRule(),
                     HeightRule(),
                     HairRule(),
                     EyesRule(),
@@ -74,6 +79,18 @@ class Day04 {
         }
     }
 
+    class IssueYearRule : Rule {
+        override fun isValid(creds: List<Pair<String, String>>): Boolean {
+            return creds.find { it.first == "iyr" }?.let { it.second.toIntOrNull() in 2010..2020 } ?: false
+        }
+    }
+
+    class ExpirationYearRule : Rule {
+        override fun isValid(creds: List<Pair<String, String>>): Boolean {
+            return creds.find { it.first == "eyr" }?.let { it.second.toIntOrNull() in 2020..2030 } ?: false
+        }
+    }
+
     class HeightRule : Rule {
         override fun isValid(creds: List<Pair<String, String>>): Boolean {
             return creds.find { it.first == "hgt" }?.let { (_, value) ->
@@ -90,7 +107,7 @@ class Day04 {
         override fun isValid(creds: List<Pair<String, String>>): Boolean {
             return creds.find { it.first == key }
                 ?.let {
-                    regex.matches(it.second)
+                    regex.matches(it.second.trim())
                 } ?: false
         }
     }
@@ -176,6 +193,41 @@ fun runTests() {
     val invalid = credentials[1]
     assertTrue(valid.valid)
     assertFalse(invalid.valid)
+
+
+    var str2 = "pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980\n" +
+            "hcl:#623a2f\n" +
+            "\n" +
+            "eyr:2029 ecl:blu cid:129 byr:1989\n" +
+            "iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm\n" +
+            "\n" +
+            "hcl:#888785\n" +
+            "hgt:164cm byr:2001 iyr:2015 cid:88\n" +
+            "pid:545766238 ecl:hzl\n" +
+            "eyr:2022\n" +
+            "\n" +
+            "iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719"
+    val credentials2 = Day04.part2(str2)
+    assertEquals(4, credentials2.size)
+    assertEquals(4, credentials2.count { it.valid })
+
+
+    var str3 = "eyr:1972 cid:100\n" +
+            "hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926\n" +
+            "\n" +
+            "iyr:2019\n" +
+            "hcl:#602927 eyr:1967 hgt:170cm\n" +
+            "ecl:grn pid:012533040 byr:1946\n" +
+            "\n" +
+            "hcl:dab227 iyr:2012\n" +
+            "ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277\n" +
+            "\n" +
+            "hgt:59cm ecl:zzz\n" +
+            "eyr:2038 hcl:74454a iyr:2023\n" +
+            "pid:3556412378 byr:2007"
+    val credentials3 = Day04.part2(str3)
+    assertEquals(4, credentials3.size)
+    assertEquals(0, credentials3.count { it.valid })
 
 
 }
