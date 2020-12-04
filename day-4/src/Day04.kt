@@ -69,27 +69,20 @@ class Day04 {
 
     class PresentRule(val key: String) : Rule  {
         override fun isValid(creds: List<Pair<String, String>>): Boolean {
-            return creds.count { it.first == key } == 1
+            return creds.any { it.first == key }
         }
     }
 
-    class BirthYearRule : Rule {
+    abstract class InRangeRule(val key: String, val from: Int, val to: Int) : Rule {
         override fun isValid(creds: List<Pair<String, String>>): Boolean {
-            return creds.find { it.first == "byr" }?.let { it.second.toIntOrNull() in 1920..2002 } ?: false
+            return creds.find { it.first == key }?.let { it.second.toIntOrNull() in from..to } ?: false
         }
     }
 
-    class IssueYearRule : Rule {
-        override fun isValid(creds: List<Pair<String, String>>): Boolean {
-            return creds.find { it.first == "iyr" }?.let { it.second.toIntOrNull() in 2010..2020 } ?: false
-        }
-    }
+    class BirthYearRule : InRangeRule("byr", 1920, 2002)
+    class IssueYearRule : InRangeRule("iyr", 2010, 2020)
+    class ExpirationYearRule : InRangeRule("eyr", 2020, 2030)
 
-    class ExpirationYearRule : Rule {
-        override fun isValid(creds: List<Pair<String, String>>): Boolean {
-            return creds.find { it.first == "eyr" }?.let { it.second.toIntOrNull() in 2020..2030 } ?: false
-        }
-    }
 
     class HeightRule : Rule {
         override fun isValid(creds: List<Pair<String, String>>): Boolean {
