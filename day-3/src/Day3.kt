@@ -13,8 +13,7 @@ class Day3(val rows: List<Row>, var turn: Int, val vel: Vector) {
             return Day3(rows, 0, vel)
         }
     }
-
-
+ 
     open class Row(val str: String, val y: Int) {
         open fun atX(x: Int): Square = if (str[x % str.length] == '.') Square.SNOW else Square.TREE
 
