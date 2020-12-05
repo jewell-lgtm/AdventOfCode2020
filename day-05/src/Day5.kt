@@ -1,20 +1,23 @@
 import java.io.File
+import kotlin.math.pow
 import kotlin.test.assertEquals
 
-data class Seat(val row: Int, val col: Int) {
-    val id: Int
-        get() = (row * 8) + col
-}
-
 class Day5 {
+
     companion object {
         fun getSeat(s: String): Seat {
+            val id = s.foldIndexed(0) { index, acc, char -> acc + if (char == 'B' || char == 'R') 2.0.pow(index).toInt() else 0 }
             val row = s.filter { it == 'F' || it == 'B' }.replace('B', '1').replace('F', '0').toInt(2)
             val col = s.filter { it == 'L' || it == 'R' }.replace('R', '1').replace('L', '0').toInt(2)
             return Seat(row, col)
 
         }
     }
+}
+
+data class Seat(val row: Int, val col: Int) {
+    val id: Int
+        get() = (row * 8) + col
 }
 
 
@@ -55,8 +58,6 @@ class Day5 {
 //
 //    }
 //}
-
-
 
 
 fun main() {
