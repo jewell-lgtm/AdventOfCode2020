@@ -1,13 +1,17 @@
 import java.io.File
-import java.lang.RuntimeException
 import kotlin.test.assertEquals
+
+data class Seat(val row: Int, val col: Int) {
+    val id: Int
+        get() = (row * 8) + col
+}
 
 class Day5 {
     companion object {
         fun getSeat(s: String): Seat {
-        val row = s.filter { it == 'F' || it == 'B' }.replace('B', '1').replace('F', '0').toInt(2)
+            val row = s.filter { it == 'F' || it == 'B' }.replace('B', '1').replace('F', '0').toInt(2)
             val col = s.filter { it == 'L' || it == 'R' }.replace('R', '1').replace('L', '0').toInt(2)
-            return Seat(row,col)
+            return Seat(row, col)
 
         }
     }
@@ -52,10 +56,7 @@ class Day5 {
 //    }
 //}
 
-data class Seat(val row: Int, val col: Int) {
-    val id: Int
-        get() = (row * 8) + col
-}
+
 
 
 fun main() {
@@ -64,11 +65,11 @@ fun main() {
     val boardingCardNumbers = File("${System.getProperty("user.dir")}/day-05/src/input.txt")
             .useLines { it.toList() }
 
-    val seats = boardingCardNumbers.map { Day5.getSeat(it) }
-    val ids = seats.map { it.id }.sorted()
-    val highest = seats.maxBy { it.id } ?: throw RuntimeException("ruh roh!")
-    val lowest = seats.minBy { it.id } ?: throw RuntimeException("ruh roh!")
-    val missing = IntRange(lowest.id + 1, highest.id - 1).first { ids.contains( it) == false }
+    val seats = boardingCardNumbers.map { Day5.getSeat(it) }.sortedBy { it.id }
+    val ids = seats.map { it.id }
+    val highest = seats.first()
+    val lowest = seats.last()
+    val missing = IntRange(lowest.id + 1, highest.id - 1).first { ids.contains(it) == false }
 
 
     println("The highest seat id is ${highest.id}")
