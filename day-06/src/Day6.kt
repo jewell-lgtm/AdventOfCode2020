@@ -29,22 +29,36 @@ fun main() {
 
 
     val groups = input.split("\n\n")
+    val distinct  = groups
+        .map { group ->
+            group.split("\n").fold(setOf<Char>()) {
+                acc, s ->  acc union s.toSet()
+            }
+        }
+    val all = groups.map { group ->
+        group.trim().split("\n").map { it.toSet() }.reduce {
+            acc, s ->  acc intersect  s
+        }
+    }
 
-    val distinct = groups.map {
+
+
+    val distinct2 = groups.map {
         it.split("").filter { Regex("^[a-z]$").matches(it) }.distinct().size
     }
-    val all = groups.map { group ->
+    val all2 = groups.map { group ->
         val people = group.split("\n").filter { it.isNotEmpty() }
 
         val answers = group.split("").distinct().filter { Regex("^[a-z]$").matches(it) }
-        val all = answers.filter { answer ->
-            people.all { it.contains(answer) }
-        }
 
-        all.size
+        answers.filter { answer ->
+            people.all { it.contains(answer) }
+        }.size
     }
-    println("The sum is: ${distinct.sum()}")
-    println("The sum for everyone answers is: ${all.sum()}")
+    println("The sum 1 is: ${distinct.sumBy { it.size }}")
+    println("The sum 2 is: ${distinct2.sum()}")
+    println("The sum for everyone answers is: ${all.sumBy { it.size }}")
+    println("The sum for everyone answers is: ${all2.sum()}")
 }
 
 
