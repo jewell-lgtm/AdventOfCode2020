@@ -2,11 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/day-01/day-01.iml" filepath="$PROJECT_DIR$/day-01/day-01.iml" />
+      <module fileurl="file://$PROJECT_DIR$/day-02/day-02.iml" filepath="$PROJECT_DIR$/day-02/day-02.iml" />
+      <module fileurl="file://$PROJECT_DIR$/day-03/day-03.iml" filepath="$PROJECT_DIR$/day-03/day-03.iml" />
+      <module fileurl="file://$PROJECT_DIR$/day-04/day-04.iml" filepath="$PROJECT_DIR$/day-04/day-04.iml" />
       <module fileurl="file://$PROJECT_DIR$/day-06/day-06.iml" filepath="$PROJECT_DIR$/day-06/day-06.iml" />
-      <module fileurl="file://$PROJECT_DIR$/day-1/day-1.iml" filepath="$PROJECT_DIR$/day-1/day-1.iml" />
-      <module fileurl="file://$PROJECT_DIR$/day-2/day-2.iml" filepath="$PROJECT_DIR$/day-2/day-2.iml" />
-      <module fileurl="file://$PROJECT_DIR$/day-3/day-3.iml" filepath="$PROJECT_DIR$/day-3/day-3.iml" />
-      <module fileurl="file://$PROJECT_DIR$/day-4/day-4.iml" filepath="$PROJECT_DIR$/day-4/day-4.iml" />
+      <module fileurl="file://$PROJECT_DIR$/day-07/day-07.iml" filepath="$PROJECT_DIR$/day-07/day-07.iml" />
     </modules>
   </component>
 </project>
