@@ -21,20 +21,20 @@ class TapeComputer(
         operate(code, value)
     }
 
-    private fun operate(code: String, value: Int) = when(code) {
-        "acc" -> {
-            acc += value
-            address += 1
-        }
+    private fun operate(code: String, value: Int): Unit = when(code) {
         "jmp" -> {
             address += value
         }
+        "acc" -> {
+            acc += value
+            operate("jmp", 1)
+        }
         "nop" -> {
-            address += 1
+            operate("jmp", 1)
         }
         "mut" -> {
             tape[value] = mutateInstruction(tape[value])
-            address += 1
+            operate("jmp", 1)
         }
         else -> throw UnknownOpCodeError(code)
     }
