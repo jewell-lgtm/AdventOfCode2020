@@ -1,4 +1,5 @@
 import java.io.File
+import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
 
 
@@ -22,12 +23,15 @@ fun main() {
 
     println("${game.occupiedSeats} occupied seats")
 
-
-
     val game2 = Day11.parse(input)
-    var gens2 = untilStable2(game2)
-    println("$gens2 generations")
-    println("${game2.occupiedSeats} occupied seats")
+    val timeInMillis = measureTimeMillis {
+        var gens2 = untilStable2(game2)
+        println("$gens2 generations")
+        println("${game2.occupiedSeats} occupied seats")
+    }
+    println("Took: ${timeInMillis}ms")
+
+
 }
 
 
@@ -183,6 +187,7 @@ private fun untilStable(game: GameOfChairs): Int {
     }
     return i
 }
+
 private fun untilStable2(game: GameOfChairs): Int {
     var i = 0
 
