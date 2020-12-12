@@ -47,9 +47,7 @@ class Ferry(
 ) : Coord(east, south) {
     val moveInstruction = Regex("^([NSEWLRF])(\\d+)$")
     fun move(where: String) {
-        val instruction = moveInstruction.matchEntire(where)
-        val direction = instruction!!.groups[1]!!.value
-        val amount = instruction.groups[2]!!.value.toInt()
+        val (direction, amount) = parseInstruction(where)
 
         when (direction) {
             "F" -> head(heading, amount)
@@ -57,16 +55,14 @@ class Ferry(
             "S" -> head(Cardinal.South, amount)
             "E" -> head(Cardinal.East, amount)
             "W" -> head(Cardinal.West, amount)
-            "R" -> turn(Clock.Clockwise, amount)
-            "L" -> turn(Clock.Anticlockwise, amount)
+            "R" -> turn(Degrees(Clock.Clockwise, amount))
+            "L" -> turn(Degrees(Clock.Anticlockwise, amount))
             else -> throw RuntimeException("Unexpected direction $direction")
         }
     }
 
     fun moveWaypoint(where: String) {
-        val instruction = moveInstruction.matchEntire(where)
-        val direction = instruction!!.groups[1]!!.value
-        val amount = instruction.groups[2]!!.value.toInt()
+        val (direction, amount) = parseInstruction(where)
 
         when (direction) {
             "F" -> headWaypoint(amount)
@@ -80,6 +76,13 @@ class Ferry(
         }
     }
 
+    private fun parseInstruction(where: String): Pair<String, Int> {
+        val instruction = moveInstruction.matchEntire(where)
+        val direction = instruction!!.groups[1]!!.value
+        val amount = instruction.groups[2]!!.value.toInt()
+        return Pair(direction, amount)
+    }
+
 
     private fun head(heading: Cardinal, amount: Int) {
         when (heading) {
@@ -90,9 +93,9 @@ class Ferry(
         }
     }
 
-    val cardinal = listOf(Cardinal.East, Cardinal.South, Cardinal.West, Cardinal.North)
-    private fun turn(direction: Clock, amount: Int) {
-        val delta = amount / if (direction == Clock.Clockwise) 90 else -90
+    private val cardinal = listOf(Cardinal.East, Cardinal.South, Cardinal.West, Cardinal.North)
+    private fun turn(amount: Degrees) {
+        val delta = amount.clockwise / 90
         val currIndex = cardinal.indexOf(heading)
         heading = cardinal[(4 + currIndex + delta) % 4]
     }
