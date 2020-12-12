@@ -40,11 +40,12 @@ open class Coord(var east: Int, var south: Int) {
 }
 
 class Ferry(
-    var heading: Cardinal = Cardinal.East,
+    initialHeading: Cardinal = Cardinal.East,
     var waypoint: Coord = Coord(10, -1),
     east: Int = 0,
     south: Int = 0,
 ) : Coord(east, south) {
+
     val moveInstruction = Regex("^([NSEWLRF])(\\d+)$")
     fun move(where: String) {
         val (direction, amount) = parseInstruction(where)
@@ -93,11 +94,17 @@ class Ferry(
         }
     }
 
+
+    val heading: Cardinal
+        get() = cardinal[headingIndex]
+
+
     private val cardinal = listOf(Cardinal.East, Cardinal.South, Cardinal.West, Cardinal.North)
+    private var headingIndex: Int = cardinal.indexOf(initialHeading)
+
     private fun turn(amount: Degrees) {
         val delta = amount.clockwise / 90
-        val currIndex = cardinal.indexOf(heading)
-        heading = cardinal[(4 + currIndex + delta) % 4]
+        headingIndex = (headingIndex + delta + 4) % 4
     }
 
     private fun headWaypoint(amount: Int) {
