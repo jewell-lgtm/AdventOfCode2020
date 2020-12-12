@@ -1,5 +1,4 @@
 import java.io.File
-import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.test.assertEquals
 
@@ -41,11 +40,11 @@ open class Coord(var east: Int, var south: Int) {
 }
 
 class Ferry(
-    var heading: Direction = Direction.East,
+    var heading: Cardinal = Cardinal.East,
     var waypoint: Coord = Coord(10, -1),
     east: Int = 0,
     south: Int = 0,
-): Coord(east, south) {
+) : Coord(east, south) {
     val moveInstruction = Regex("^([NSEWLRF])(\\d+)$")
     fun move(where: String) {
         val instruction = moveInstruction.matchEntire(where)
@@ -54,10 +53,10 @@ class Ferry(
 
         when (direction) {
             "F" -> head(heading, amount)
-            "N" -> head(Direction.North, amount)
-            "S" -> head(Direction.South, amount)
-            "E" -> head(Direction.East, amount)
-            "W" -> head(Direction.West, amount)
+            "N" -> head(Cardinal.North, amount)
+            "S" -> head(Cardinal.South, amount)
+            "E" -> head(Cardinal.East, amount)
+            "W" -> head(Cardinal.West, amount)
             "R" -> turn(Clock.Clockwise, amount)
             "L" -> turn(Clock.Anticlockwise, amount)
             else -> throw RuntimeException("Unexpected direction $direction")
@@ -71,59 +70,58 @@ class Ferry(
 
         when (direction) {
             "F" -> headWaypoint(amount)
-            "N" -> relocateWaypoint(Direction.North, amount)
-            "S" -> relocateWaypoint(Direction.South, amount)
-            "E" -> relocateWaypoint(Direction.East, amount)
-            "W" -> relocateWaypoint(Direction.West, amount)
-            "R" -> turnWaypoint(Clock.Clockwise, amount)
-            "L" -> turnWaypoint(Clock.Anticlockwise, amount)
+            "N" -> relocateWaypoint(Cardinal.North, amount)
+            "S" -> relocateWaypoint(Cardinal.South, amount)
+            "E" -> relocateWaypoint(Cardinal.East, amount)
+            "W" -> relocateWaypoint(Cardinal.West, amount)
+            "R" -> turnWaypoint(Degrees(Clock.Clockwise, amount))
+            "L" -> turnWaypoint(Degrees(Clock.Anticlockwise, amount))
             else -> throw RuntimeException("Unexpected direction $direction")
         }
     }
 
 
-
-    private fun head(heading: Direction, amount: Int) {
+    private fun head(heading: Cardinal, amount: Int) {
         when (heading) {
-            Direction.North -> south -= amount
-            Direction.South -> south += amount
-            Direction.West -> east -= amount
-            Direction.East -> east += amount
+            Cardinal.North -> south -= amount
+            Cardinal.South -> south += amount
+            Cardinal.West -> east -= amount
+            Cardinal.East -> east += amount
         }
     }
 
-    val cardinal = listOf(Direction.East, Direction.South, Direction.West, Direction.North)
+    val cardinal = listOf(Cardinal.East, Cardinal.South, Cardinal.West, Cardinal.North)
     private fun turn(direction: Clock, amount: Int) {
         val delta = amount / if (direction == Clock.Clockwise) 90 else -90
         val currIndex = cardinal.indexOf(heading)
-        heading = cardinal[(currIndex + delta + 4) % 4]
+        heading = cardinal[(4 + currIndex + delta) % 4]
     }
 
     private fun headWaypoint(amount: Int) {
-        val east = waypoint.east * amount
-        val south = waypoint.south * amount
-        this.east += east
-        this.south += south
+        this.east += waypoint.east * amount
+        this.south += waypoint.south * amount
     }
 
-    private fun turnWaypoint(clockwise: Clock, amount: Int) {
-        val actualAmount = if (clockwise.equals(Clock.Clockwise)) amount else 360 + (-1 * amount) % 360
+    class Degrees(val direction: Clock, val amount: Int) {
+        val clockwise get() = if (direction == Clock.Clockwise) amount else 360 + (-1 * amount) % 360
+    }
 
-        waypoint = when(actualAmount) {
+    private fun turnWaypoint(amount: Degrees) {
+        waypoint = when (amount.clockwise) {
             90 -> Coord(-1 * waypoint.south, waypoint.east)
-            180 -> Coord(-1 * waypoint.east, -1 * waypoint.south )
-            270 -> Coord(waypoint.south, -1 * waypoint.east )
+            180 -> Coord(-1 * waypoint.east, -1 * waypoint.south)
+            270 -> Coord(waypoint.south, -1 * waypoint.east)
             else -> TODO("Dont know how to turn ${amount}")
         }
     }
 
 
-    private fun relocateWaypoint(direction: Direction, amount: Int) {
-        when(direction) {
-            Direction.North -> this.waypoint.south -= amount
-            Direction.South -> this.waypoint.south += amount
-            Direction.West -> this.waypoint.east -= amount
-            Direction.East -> this.waypoint.east += amount
+    private fun relocateWaypoint(direction: Cardinal, amount: Int) {
+        when (direction) {
+            Cardinal.North -> this.waypoint.south -= amount
+            Cardinal.South -> this.waypoint.south += amount
+            Cardinal.West -> this.waypoint.east -= amount
+            Cardinal.East -> this.waypoint.east += amount
         }
     }
 
@@ -133,7 +131,7 @@ enum class Clock {
     Clockwise, Anticlockwise
 }
 
-enum class Direction {
+enum class Cardinal {
     North, South, East, West
 }
 
@@ -142,33 +140,32 @@ fun runTests() {
     val ferry = Day12.createFerry()
     assertEquals(0, ferry.east)
     assertEquals(0, ferry.south)
-    assertEquals(Direction.East, ferry.heading)
+    assertEquals(Cardinal.East, ferry.heading)
 
     ferry.move("F10")
     assertEquals(10, ferry.east)
     assertEquals(0, ferry.south)
-    assertEquals(Direction.East, ferry.heading)
+    assertEquals(Cardinal.East, ferry.heading)
 
     ferry.move("N3")
     assertEquals(10, ferry.east)
     assertEquals(-3, ferry.south)
-    assertEquals(Direction.East, ferry.heading)
+    assertEquals(Cardinal.East, ferry.heading)
 
     ferry.move("R90")
     assertEquals(10, ferry.east)
     assertEquals(-3, ferry.south)
-    assertEquals(Direction.South, ferry.heading)
-
-
-    ferry.move("L180")
-    assertEquals(10, ferry.east)
-    assertEquals(-3, ferry.south)
-    assertEquals(Direction.North, ferry.heading)
+    assertEquals(Cardinal.South, ferry.heading)
 
     ferry.move("L180")
     assertEquals(10, ferry.east)
     assertEquals(-3, ferry.south)
-    assertEquals(Direction.South, ferry.heading)
+    assertEquals(Cardinal.North, ferry.heading)
+
+    ferry.move("L180")
+    assertEquals(10, ferry.east)
+    assertEquals(-3, ferry.south)
+    assertEquals(Cardinal.South, ferry.heading)
 
 
     val instructions = Day12.parseInput(
@@ -185,7 +182,7 @@ fun runTests() {
     for (instruction in instructions) {
         ferry2.move(instruction)
     }
-    assertEquals(Direction.South, ferry2.heading)
+    assertEquals(Cardinal.South, ferry2.heading)
     assertEquals(17, ferry2.east)
     assertEquals(8, ferry2.south)
     assertEquals(25, ferry2.manhattanDistance)
