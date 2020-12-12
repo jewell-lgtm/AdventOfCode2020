@@ -17,24 +17,35 @@ class Day12 {
 
 fun main() {
     runTests()
+    runTests2()
 
     val input = File("${System.getProperty("user.dir")}/day-12-3/src/input.txt")
         .readText()
     val instructions = Day12.parseInput(input)
+
     val part1 = Day12.createFerry()
     instructions.forEach { part1.move(it) }
-    println("the distance is ${part1.manhattanDistance}")
+    println("Part 1: the distance is ${part1.manhattanDistance}")
+
+    val part2 = Day12.createFerry()
+    instructions.forEach { part2.moveWaypoint(it) }
+    println("Part 2: the distance is ${part2.manhattanDistance}")
 }
 
+open class Coord(var east: Int, var south: Int) {
+    val west get() = -1 * east
+    val north get() = -1 * south
+
+    val manhattanDistance: Int
+        get() = east.absoluteValue + south.absoluteValue
+}
 
 class Ferry(
     var heading: Direction = Direction.East,
-    var east: Int = 0,
-    var south: Int = 0
-) {
-    val manhattanDistance: Int
-        get() = east.absoluteValue + south.absoluteValue
-
+    var waypoint: Coord = Coord(10, -1),
+    east: Int = 0,
+    south: Int = 0,
+): Coord(east, south) {
     val moveInstruction = Regex("^([NSEWLRF])(\\d+)$")
     fun move(where: String) {
         val instruction = moveInstruction.matchEntire(where)
@@ -53,6 +64,25 @@ class Ferry(
         }
     }
 
+    fun moveWaypoint(where: String) {
+        val instruction = moveInstruction.matchEntire(where)
+        val direction = instruction!!.groups[1]!!.value
+        val amount = instruction.groups[2]!!.value.toInt()
+
+        when (direction) {
+            "F" -> headWaypoint(amount)
+            "N" -> relocateWaypoint(Direction.North, amount)
+            "S" -> relocateWaypoint(Direction.South, amount)
+            "E" -> relocateWaypoint(Direction.East, amount)
+            "W" -> relocateWaypoint(Direction.West, amount)
+            "R" -> turnWaypoint(Clock.Clockwise, amount)
+            "L" -> turnWaypoint(Clock.Anticlockwise, amount)
+            else -> throw RuntimeException("Unexpected direction $direction")
+        }
+    }
+
+
+
     private fun head(heading: Direction, amount: Int) {
         when (heading) {
             Direction.North -> south -= amount
@@ -68,6 +98,35 @@ class Ferry(
         val currIndex = cardinal.indexOf(heading)
         heading = cardinal[(currIndex + delta + 4) % 4]
     }
+
+    private fun headWaypoint(amount: Int) {
+        val east = waypoint.east * amount
+        val south = waypoint.south * amount
+        this.east += east
+        this.south += south
+    }
+
+    private fun turnWaypoint(clockwise: Clock, amount: Int) {
+        val actualAmount = if (clockwise.equals(Clock.Clockwise)) amount else 360 + (-1 * amount) % 360
+
+        waypoint = when(actualAmount) {
+            90 -> Coord(-1 * waypoint.south, waypoint.east)
+            180 -> Coord(-1 * waypoint.east, -1 * waypoint.south )
+            270 -> Coord(waypoint.south, -1 * waypoint.east )
+            else -> TODO("Dont know how to turn ${amount}")
+        }
+    }
+
+
+    private fun relocateWaypoint(direction: Direction, amount: Int) {
+        when(direction) {
+            Direction.North -> this.waypoint.south -= amount
+            Direction.South -> this.waypoint.south += amount
+            Direction.West -> this.waypoint.east -= amount
+            Direction.East -> this.waypoint.east += amount
+        }
+    }
+
 }
 
 enum class Clock {
@@ -130,4 +189,42 @@ fun runTests() {
     assertEquals(17, ferry2.east)
     assertEquals(8, ferry2.south)
     assertEquals(25, ferry2.manhattanDistance)
+}
+
+fun runTests2() {
+//    val instructions = listOf(
+//        "F10",
+//        "N3",
+//        "F7",
+//        "R90",
+//        "F11"
+//    )
+
+    val ferry = Day12.createFerry()
+    assertEquals(10, ferry.waypoint.east)
+    assertEquals(1, ferry.waypoint.north)
+
+    ferry.moveWaypoint("F10")
+    assertEquals(100, ferry.east)
+    assertEquals(10, ferry.north)
+
+    ferry.moveWaypoint("N3")
+    assertEquals(100, ferry.east)
+    assertEquals(10, ferry.north)
+    assertEquals(10, ferry.waypoint.east)
+    assertEquals(4, ferry.waypoint.north)
+
+    ferry.moveWaypoint("F7")
+    assertEquals(170, ferry.east)
+    assertEquals(38, ferry.north)
+
+    ferry.moveWaypoint("R90")
+    assertEquals(4, ferry.waypoint.east)
+    assertEquals(10, ferry.waypoint.south)
+
+    ferry.moveWaypoint("F11")
+    assertEquals(214, ferry.east)
+    assertEquals(72, ferry.south)
+
+    assertEquals(286, ferry.manhattanDistance)
 }
